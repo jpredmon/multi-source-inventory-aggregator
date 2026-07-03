@@ -150,6 +150,15 @@ vin-web/src/app/
 - No sorting, filtering, or pagination. No state management library.
 - Basic CSS only, for readability — this is not a design exercise.
 
+## Editor Setup (VS Code)
+
+The project includes `.vscode/launch.json` and `.vscode/tasks.json` so the
+API can be built and debugged directly from VS Code (F5, breakpoints)
+rather than only running via `dotnet run` from a terminal. `.vscode/extensions.json`
+recommends C# Dev Kit (for the API) and Angular Language Service (for the
+frontend) so VS Code prompts for them on first open. No global VS Code
+settings are changed — this is scoped to the project folder.
+
 ## Out of Scope
 
 - Authentication/authorization.
