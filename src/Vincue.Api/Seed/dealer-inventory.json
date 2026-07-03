@@ -1,0 +1,14 @@
+[
+  { "vin": "1G1ZD5ST0LF123456", "stockNumber": "D1001", "cost": 14250.00, "dateAcquired": "2025-01-15" },
+  { "vin": "1HGCV1F34LA123457", "stockNumber": "D1002", "cost": 16800.00, "dateAcquired": "2025-01-18" },
+  { "vin": "3VW2B7AJ9FM123458", "stockNumber": "D1003", "cost": 9800.00,  "dateAcquired": "2025-01-22" },
+  { "vin": "5YJ3E1EA8KF123459", "stockNumber": "D1004", "cost": 32250.00, "dateAcquired": "2025-02-01" },
+  { "vin": "1FTFW1ET5DFC12345", "stockNumber": "D1005", "cost": 21400.00, "dateAcquired": "2025-02-05" },
+  { "vin": "2T1BURHE0JC123456", "stockNumber": "D1006", "cost": 13100.00, "dateAcquired": "2025-02-10" },
+  { "vin": "JN8AZ2NF0K9123457", "stockNumber": "D1007", "cost": 18700.00, "dateAcquired": "2025-02-14" },
+  { "vin": "1C4RJFAG3FC123458", "stockNumber": "D1008", "cost": 24600.00, "dateAcquired": "2025-02-20" },
+  { "vin": "4T1BF1FK5FU123459", "stockNumber": "D1009", "cost": 15950.00, "dateAcquired": "2025-03-01" },
+  { "vin": "WBA8E9C50GK123460", "stockNumber": "D1010", "cost": 27300.00, "dateAcquired": "2025-03-06" },
+  { "vin": "5FNRL6H90KB123461", "stockNumber": "D1011", "cost": 19850.00, "dateAcquired": "2025-03-12" },
+  { "vin": "1N4AL3AP0JC123462", "stockNumber": "D1012", "cost": 11200.00, "dateAcquired": "2025-03-18" }
+]

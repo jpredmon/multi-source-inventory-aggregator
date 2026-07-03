@@ -1,0 +1,8 @@
+[
+  { "vin": "1G1ZD5ST0LF123456", "salePrice": 16995.00, "daysOnLot": 22, "soldDate": "2025-02-06T09:15:00-05:00" },
+  { "vin": "1HGCV1F34LA123457", "salePrice": 19495.00, "daysOnLot": 15, "soldDate": "2025-02-02T11:00:00-05:00" },
+  { "vin": "3VW2B7AJ9FM123458", "salePrice": 11995.00, "daysOnLot": 30, "soldDate": "2025-02-21T10:30:00-05:00" },
+  { "vin": "5YJ3E1EA8KF123459", "salePrice": 35995.00, "daysOnLot": 18, "soldDate": "2025-02-19T14:45:00-05:00" },
+  { "vin": "1FTFW1ET5DFC12345", "salePrice": 24495.00, "daysOnLot": 25, "soldDate": "2025-03-02T13:00:00-05:00" },
+  { "vin": "2T1BURHE0JC123456", "salePrice": 15495.00, "daysOnLot": 20, "soldDate": "2025-03-02T16:00:00-05:00" }
+]

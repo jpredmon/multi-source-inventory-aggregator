@@ -15,4 +15,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.15" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Seed\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
