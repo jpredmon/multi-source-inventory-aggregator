@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace Vin.Api.Dtos;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum VehicleStatus
 {
     OnLot,
