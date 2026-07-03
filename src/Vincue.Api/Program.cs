@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Vin.Api.Data;
 using Vin.Api.Seed;
+using Vin.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,15 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<VinDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("VinDb")));
+
+builder.Services.AddScoped<IInventoryAggregationService, InventoryAggregationService>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AngularDev", policy =>
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 
 var app = builder.Build();
 
@@ -29,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+
+app.UseCors("AngularDev");
 
 app.MapControllers();
 
