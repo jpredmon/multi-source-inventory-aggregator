@@ -3,4 +3,5 @@ obj/
 .vs/
 node_modules/
 .angular/
+dist/
 *.log
