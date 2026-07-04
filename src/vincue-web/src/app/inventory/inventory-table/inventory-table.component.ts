@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, type OnInit } from '@angular/core';
+import { Component, signal, type OnInit } from '@angular/core';
 
 import { InventoryService } from '../inventory.service';
 import type { VehicleSummary } from '../inventory.model';
@@ -12,13 +12,13 @@ import type { VehicleSummary } from '../inventory.model';
   styleUrl: './inventory-table.component.css'
 })
 export class InventoryTableComponent implements OnInit {
-  vehicles: VehicleSummary[] = [];
+  readonly vehicles = signal<VehicleSummary[]>([]);
 
   constructor(private readonly inventoryService: InventoryService) {}
 
   ngOnInit(): void {
     this.inventoryService.getAll().subscribe((vehicles) => {
-      this.vehicles = vehicles;
+      this.vehicles.set(vehicles);
     });
   }
 }

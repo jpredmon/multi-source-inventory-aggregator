@@ -15,7 +15,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let vehicle of vehicles">
+    <tr *ngFor="let vehicle of vehicles()">
       <td>{{ vehicle.vin }}</td>
       <td>{{ vehicle.stockNumber }}</td>
       <td>{{ vehicle.cost | currency }}</td>
