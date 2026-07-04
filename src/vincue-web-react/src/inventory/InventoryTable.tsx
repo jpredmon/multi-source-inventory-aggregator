@@ -31,6 +31,7 @@ export function InventoryTable() {
           <th>Sale Price</th>
           <th>Days On Lot</th>
           <th>Sold Date</th>
+          <th>Profit Margin</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -59,6 +60,7 @@ export function InventoryTable() {
             <td>{vehicle.salePrice != null ? currency.format(vehicle.salePrice) : '—'}</td>
             <td>{vehicle.daysOnLot ?? '—'}</td>
             <td>{vehicle.soldDate != null ? shortDate.format(new Date(vehicle.soldDate)) : '—'}</td>
+            <td>{vehicle.profitMargin != null ? currency.format(vehicle.profitMargin) : '—'}</td>
             <td>{vehicle.status}</td>
           </tr>
         ))}
