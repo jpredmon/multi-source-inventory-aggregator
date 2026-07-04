@@ -7,6 +7,8 @@
     <title>vin-web-react</title>
   </head>
   <body>
+    <!-- index.html — the one static HTML page (there's exactly one, since this is a client-rendered SPA). <div id="root"></div> and the script tag below are the entire "hand control to JavaScript" handoff.
+      Angular's index.html does the same job (a mount point + a bootstrap script tag), just less visibly since Angular CLI's build machinery injects the script tag for you. -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
