@@ -1,2 +1,12 @@
+<!-- Static heading — plain HTML, no Angular anywhere on this line. -->
 <h1>Vin Inventory</h1>
+
+<!-- This is the entire "mount the feature" step. `app-inventory-table` is
+     the selector declared in inventory-table.component.ts's @Component
+     decorator (selector: 'app-inventory-table'). Angular sees this custom
+     tag, looks it up against everything listed in App's `imports` array,
+     finds InventoryTableComponent, and replaces this tag with that
+     component's entire rendered template (the table you annotated last) —
+     which then runs its own ngOnInit(), calls the service, and renders
+     itself, completely independently of anything in this file. -->
 <app-inventory-table></app-inventory-table>

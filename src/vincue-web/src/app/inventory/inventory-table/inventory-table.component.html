@@ -1,6 +1,8 @@
 <table>
   <thead>
     <tr>
+       <!-- Static header row — just plain HTML, no Angular binding needed
+           since column names never change. -->
       <th>VIN</th>
       <th>Stock #</th>
       <th>Cost</th>
@@ -15,17 +17,53 @@
     </tr>
   </thead>
   <tbody>
+     <!-- *ngFor is a "structural directive" — the asterisk means it doesn't
+         just style this <tr>, it controls whether/how many times it exists
+         in the DOM at all. Angular clones this <tr> once per item in the
+         list and sets `vehicle` as a local template variable for each clone.
+
+         The parentheses in vehicles() are the tell that vehicles is a
+         Signal, not a plain array — see inventory-table.component.ts:15
+         (readonly vehicles = signal<VehicleSummary[]>([])). Calling it like
+         a function is how you *read* a signal's current value, both here
+         and in TypeScript. This is also what registers the dependency:
+         Angular now knows this <tr> block depends on `vehicles`, and only
+         re-renders it, specifically, when `vehicles.set(...)` is called —
+         not the whole component tree, which is the payoff of the signal
+         change discussed earlier. -->
     <tr *ngFor="let vehicle of vehicles()">
+        <!-- {{ }} is interpolation — evaluates the expression inside and
+           inserts it as text. Plain property access, no pipe needed. -->
       <td>{{ vehicle.vin }}</td>
       <td>{{ vehicle.stockNumber }}</td>
+         <!-- The `| currency` is a pipe — takes the raw number (14250) and
+           transforms it for display ($14,250.00) without changing the
+           underlying data. Pipes are Angular's built-in "format this value"
+           mechanism; CommonModule (imported in the component) is what makes
+           `currency` and `date` available in this template. -->
       <td>{{ vehicle.cost | currency }}</td>
       <td>{{ vehicle.dateAcquired | date: 'shortDate' }}</td>
+         <!-- This is the null-handling story from the design spec, made visible:
+           a full ternary (condition ? whenTrue : whenFalse) that only applies
+           the currency pipe when the value isn't null, otherwise shows an
+           em-dash. This is the same "is it there or not" question the SQL
+           CASE expression answered earlier — here it's answered per-cell,
+           for display, rather than per-row, for status. -->
       <td>{{ vehicle.hammerPrice != null ? (vehicle.hammerPrice | currency) : '—' }}</td>
       <td>{{ vehicle.auctionDate != null ? (vehicle.auctionDate | date: 'shortDate') : '—' }}</td>
+        <!-- `??` is the nullish coalescing operator — shorthand for "use the
+           left side unless it's null/undefined, then use the right side."
+           Used here instead of the full ternary above because there's no
+           pipe to conditionally apply — condition is just a plain string,
+           so there's nothing to skip when null except the value itself. -->
       <td>{{ vehicle.condition ?? '—' }}</td>
       <td>{{ vehicle.salePrice != null ? (vehicle.salePrice | currency) : '—' }}</td>
       <td>{{ vehicle.daysOnLot ?? '—' }}</td>
       <td>{{ vehicle.soldDate != null ? (vehicle.soldDate | date: 'shortDate') : '—' }}</td>
+        <!-- Just prints the enum string directly — 'OnLot' / 'Auctioned' /
+           'Sold' — because the backend already sends it as a string
+           (JsonStringEnumConverter from the DTO walkthrough). No pipe,
+           no transform needed here; the API did that work already. -->
       <td>{{ vehicle.status }}</td>
     </tr>
   </tbody>
