@@ -39,6 +39,10 @@ public class VehicleSummaryDto
     public decimal? SalePrice { get; set; }
     public int? DaysOnLot { get; set; }
     public DateTime? SoldDate { get; set; }
+    // Genuine arithmetic — SalePrice minus Cost, computed at query time in
+    // BuildQuery() below. Null whenever SalePrice is null (never sold yet),
+    // same nullability story as every other sale-dependent field.
+    public decimal? ProfitMargin { get; set; }
      // Computed, not stored anywhere — derived at query time from which of
     // the two optional joins actually matched. See BuildQuery() below.
 

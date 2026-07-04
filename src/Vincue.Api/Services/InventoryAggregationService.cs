@@ -89,10 +89,15 @@ public class InventoryAggregationService : IInventoryAggregationService
                 SalePrice = sale != null ? sale.SalePrice : null,
                 DaysOnLot = sale != null ? sale.DaysOnLot : null,
                 SoldDate = sale != null ? sale.SoldDate : null,
+                // The first genuine arithmetic in this query: sale.SalePrice
+                // minus dealer.Cost. EF Core translates this straight into a
+                // SQL subtraction inside the same SELECT — no separate
+                // computation step, no fetching rows into memory first.
+                ProfitMargin = sale != null ? sale.SalePrice - dealer.Cost : null,
                  // The derived Status field: sale wins over auction wins over
-                // "neither" (OnLot). This is the one piece of actual business
-                // logic in the entire query — everything else is structural
-                // (joins, null-propagation).
+                // "neither" (OnLot). Between this and ProfitMargin above,
+                // that's the entirety of the query's actual business logic —
+                // everything else is structural (joins, null-propagation).
                 Status = sale != null
                     ? VehicleStatus.Sold
                     : auction != null
