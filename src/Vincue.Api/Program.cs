@@ -17,8 +17,8 @@ builder.Services.AddDbContext<VinDbContext>(options =>
 builder.Services.AddScoped<IInventoryAggregationService, InventoryAggregationService>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AngularDev", policy =>
-        policy.WithOrigins("http://localhost:4200")
+    options.AddPolicy("FrontendDev", policy =>
+        policy.WithOrigins("http://localhost:4200", "http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod());
 });
@@ -40,7 +40,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 
-app.UseCors("AngularDev");
+app.UseCors("FrontendDev");
 
 app.MapControllers();
 
