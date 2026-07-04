@@ -13,6 +13,7 @@ export interface VehicleSummary {
   salePrice: number | null;
   daysOnLot: number | null;
   soldDate: string | null;
+  profitMargin: number | null;
 
   status: VehicleStatus;
 }

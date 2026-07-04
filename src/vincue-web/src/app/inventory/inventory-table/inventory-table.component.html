@@ -13,6 +13,7 @@
       <th>Sale Price</th>
       <th>Days On Lot</th>
       <th>Sold Date</th>
+      <th>Profit Margin</th>
       <th>Status</th>
     </tr>
   </thead>
@@ -60,6 +61,7 @@
       <td>{{ vehicle.salePrice != null ? (vehicle.salePrice | currency) : '—' }}</td>
       <td>{{ vehicle.daysOnLot ?? '—' }}</td>
       <td>{{ vehicle.soldDate != null ? (vehicle.soldDate | date: 'shortDate') : '—' }}</td>
+      <td>{{ vehicle.profitMargin != null ? (vehicle.profitMargin | currency) : '—' }}</td>
         <!-- Just prints the enum string directly — 'OnLot' / 'Auctioned' /
            'Sold' — because the backend already sends it as a string
            (JsonStringEnumConverter from the DTO walkthrough). No pipe,
