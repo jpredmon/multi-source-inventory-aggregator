@@ -34,6 +34,57 @@ public class InventoryAggregationService : IInventoryAggregationService
         return await BuildQuery().FirstOrDefaultAsync(v => v.Vin == vin);
     }
 
+    public async Task<InventoryStatsDto> GetStatsAsync()
+    {
+        // Reuses BuildQuery() as a subquery — same principle as GetAllAsync/
+        // GetByVinAsync: build on the one merge query rather than
+        // re-deriving the join logic here. Everything below is genuine SQL
+        // aggregation (GROUP BY / SUM / AVG / COUNT), the first real
+        // aggregate-function usage in this project — everything before this
+        // point has been joins and null-coalescing, not rollups.
+        var baseQuery = BuildQuery();
+
+        // GroupBy(v => v.Status) translates to a real SQL GROUP BY over the
+        // derived table's computed Status expression (the CASE from
+        // BuildQuery()) — counting vehicles per status bucket in one query.
+        var countsByStatus = await baseQuery
+            .GroupBy(v => v.Status)
+            .Select(g => new StatusCountDto { Status = g.Key, Count = g.Count() })
+            .ToListAsync();
+
+        // GroupBy(v => 1) is the standard EF Core idiom for "compute several
+        // aggregates over the entire set in one round trip." The constant
+        // key means there's exactly one group, so SQL Server emits a plain
+        // single-row aggregate SELECT rather than a real GROUP BY.
+        var overall = await baseQuery
+            .GroupBy(v => 1)
+            .Select(g => new { TotalCost = g.Sum(v => v.Cost), AverageCost = g.Average(v => v.Cost) })
+            .FirstOrDefaultAsync();
+
+        // Same idiom, filtered to Sold vehicles only — ProfitMargin/DaysOnLot
+        // are null for anything not sold, so averaging over the whole set
+        // would silently skew these toward zero. Filter first, then average
+        // only over rows where these fields are actually meaningful.
+        var soldOnly = await baseQuery
+            .Where(v => v.Status == VehicleStatus.Sold)
+            .GroupBy(v => 1)
+            .Select(g => new
+            {
+                AverageProfitMargin = g.Average(v => v.ProfitMargin),
+                AverageDaysOnLot = g.Average(v => v.DaysOnLot)
+            })
+            .FirstOrDefaultAsync();
+
+        return new InventoryStatsDto
+        {
+            CountsByStatus = countsByStatus,
+            TotalCost = overall?.TotalCost ?? 0m,
+            AverageCost = overall?.AverageCost ?? 0m,
+            AverageProfitMarginForSold = soldOnly?.AverageProfitMargin,
+            AverageDaysOnLotForSold = soldOnly?.AverageDaysOnLot
+        };
+    }
+
     // This method never runs against real data by itself — it only builds
     // an expression tree describing the query. EF Core's LINQ provider reads
     // that tree and translates it into a single SQL statement the first time

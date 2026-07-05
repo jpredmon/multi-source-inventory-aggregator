@@ -59,4 +59,15 @@ public class InventoryController : ControllerBase
         // a null-shaped 200 body to the client.
         return result is null ? NotFound() : Ok(result);
     }
+
+    // A literal route segment ("stats") ranks above a parameter segment
+    // ({vin}) in ASP.NET Core's attribute-routing precedence, so
+    // GET /api/inventory/stats resolves here, not into GetByVin with
+    // vin = "stats" — worth confirming with a real request rather than
+    // assuming, since the two routes look ambiguous at a glance.
+    [HttpGet("stats")]
+    public async Task<ActionResult<InventoryStatsDto>> GetStats()
+    {
+        return Ok(await _service.GetStatsAsync());
+    }
 }
