@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Vin.Api.Data;
 using Vin.Api.Models;
 
@@ -52,6 +53,90 @@ public static class DatabaseSeeder
         // The one and only DB round trip. EF Core batches all tracked "Added"
         // entities into a single transaction (SQL Server batches the INSERTs),
         // rather than one round trip per row across three separate SaveChanges calls.
+        await context.SaveChangesAsync();
+    }
+
+    // Prefix marking synthetic bulk-dev VINs, distinct from the real
+    // 17-character-shaped demo VINs — lets this method tell "already seeded"
+    // apart from the unrelated real-data seed above, and keeps the two
+    // datasets visually distinguishable if ever inspected side by side.
+    private const string BulkVinPrefix = "BULKDEV";
+
+    // Deliberately separate from SeedAsync() and never called by it — this
+    // exists purely so the Vin indexes added in this project have enough
+    // rows to actually change SQL Server's query plan from a scan to a
+    // seek, which the realistic 12-vehicle demo dataset is too small to
+    // ever trigger. Opt-in only (see Program.cs), gated behind an
+    // environment variable, so it never runs for a normal dev/demo session.
+    public static async Task SeedBulkDevDataAsync(VinDbContext context, int vehicleCount = 5000)
+    {
+        // Same idempotency shape as SeedAsync(), scoped to the bulk prefix
+        // specifically so this check doesn't collide with the real dataset.
+        if (await context.DealerInventory.AnyAsync(d => d.Vin.StartsWith(BulkVinPrefix)))
+        {
+            return;
+        }
+
+        var dealers = new List<DealerInventory>(vehicleCount);
+        var auctions = new List<AuctionRecord>();
+        var sales = new List<SaleRecord>();
+        var baseDate = new DateTime(2024, 1, 1);
+
+        for (var i = 0; i < vehicleCount; i++)
+        {
+            var vin = $"{BulkVinPrefix}{i:D10}";
+            dealers.Add(new DealerInventory
+            {
+                Vin = vin,
+                StockNumber = $"BULK{i}",
+                Cost = 10000m + i,
+                DateAcquired = baseDate.AddDays(i % 300)
+            });
+
+            // ~70% of synthetic vehicles get at least one auction record.
+            if (i % 10 < 7)
+            {
+                auctions.Add(new AuctionRecord
+                {
+                    Vin = vin,
+                    HammerPrice = 9000m + i,
+                    AuctionDate = baseDate.AddDays((i % 300) + 5),
+                    Condition = "Good"
+                });
+
+                // A slice of those get a second, earlier record too — the
+                // same re-auctioned-vehicle shape as the real dataset's
+                // JN8AZ2NF0K9123457, so the ROW_NUMBER dedupe logic is
+                // also exercised at volume, not just correctness-checked
+                // on one row.
+                if (i % 10 == 0)
+                {
+                    auctions.Add(new AuctionRecord
+                    {
+                        Vin = vin,
+                        HammerPrice = 8500m + i,
+                        AuctionDate = baseDate.AddDays((i % 300) - 5),
+                        Condition = "Fair"
+                    });
+                }
+            }
+
+            // ~50% of auctioned vehicles get sold.
+            if (i % 10 < 5)
+            {
+                sales.Add(new SaleRecord
+                {
+                    Vin = vin,
+                    SalePrice = 12000m + i,
+                    DaysOnLot = 20 + (i % 15),
+                    SoldDate = baseDate.AddDays((i % 300) + 15)
+                });
+            }
+        }
+
+        context.DealerInventory.AddRange(dealers);
+        context.AuctionRecords.AddRange(auctions);
+        context.SaleRecords.AddRange(sales);
         await context.SaveChangesAsync();
     }
 

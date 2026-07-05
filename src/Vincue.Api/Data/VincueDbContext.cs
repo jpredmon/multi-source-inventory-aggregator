@@ -57,11 +57,31 @@ public class VinDbContext : DbContext
             .HasIndex(s => s.Vin)
             .HasDatabaseName("IX_SaleRecords_Vin");
 
-        // Composite, ordered to match exactly how BuildQuery()'s correlated
-        // subquery (and the MostRecentAuctionPerVin view) use this table:
-        // filter by Vin, then order by AuctionDate. One index covers both
-        // the equality filter and the sort in a single seek, rather than
-        // needing a separate sort step after the seek.
+        // Composite, ordered to match how BuildQuery()'s ROW_NUMBER-based
+        // dedupe (and the MostRecentAuctionPerVin view) use this table:
+        // filter by Vin, then order by AuctionDate.
+        //
+        // KNOWN LIMITATION, confirmed by testing against ~4,000 synthetic
+        // rows (see DatabaseSeeder.SeedBulkDevDataAsync) and reading actual
+        // execution plans: this index does NOT get used — AuctionRecords
+        // still shows a Clustered Index Scan, even for a single-VIN lookup.
+        // Reason: SQL Server generally can't push an equality predicate
+        // through a ROW_NUMBER() OVER (PARTITION BY ...) window function
+        // boundary, even when the predicate only touches the partition key
+        // (which would be provably safe here, since each VIN's ranking is
+        // independent of every other VIN's). The optimizer computes the
+        // ranking for the entire table first, then filters — so this index
+        // never gets a chance to help. By contrast, the plain Vin indexes
+        // on DealerInventory and SaleRecords DO produce real Index Seeks,
+        // confirmed the same way, since those are ordinary equality
+        // lookups with no window function in the way.
+        //
+        // Fixing this for real would require giving GetByVinAsync a
+        // genuinely different query shape than GetAllAsync (a true
+        // correlated subquery filtered by Vin before ranking, just for the
+        // single-VIN path) — a real architectural fork, deliberately not
+        // pursued this round. Documented here as a known, honest limitation
+        // rather than silently left unverified.
         modelBuilder.Entity<AuctionRecord>()
             .HasIndex(a => new { a.Vin, a.AuctionDate })
             .HasDatabaseName("IX_AuctionRecords_Vin_AuctionDate");

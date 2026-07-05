@@ -30,6 +30,16 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<VinDbContext>();
     db.Database.Migrate();
     await DatabaseSeeder.SeedAsync(db);
+
+    // Opt-in only, never part of a normal run: SEED_BULK_DEV_DATA=true adds
+    // a few thousand synthetic rows purely so the Vin indexes have enough
+    // data to actually change SQL Server's query plan from a scan to a
+    // seek — the realistic 12-vehicle demo dataset is too small for that on
+    // its own.
+    if (Environment.GetEnvironmentVariable("SEED_BULK_DEV_DATA") == "true")
+    {
+        await DatabaseSeeder.SeedBulkDevDataAsync(db);
+    }
 }
 
 // Configure the HTTP request pipeline.
