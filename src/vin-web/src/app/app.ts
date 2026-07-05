@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 
+import { InventoryStatsBarComponent } from './inventory/inventory-stats-bar/inventory-stats-bar.component';
 import { InventoryTableComponent } from './inventory/inventory-table/inventory-table.component';
 
 @Component({
@@ -17,7 +18,7 @@ import { InventoryTableComponent } from './inventory/inventory-table/inventory-t
   // meaningless custom element with nothing inside. This `imports` array is
   // standalone components' replacement for the old NgModule `declarations`/
   // `imports` arrays — no AppModule class anywhere in this project at all.
-  imports: [InventoryTableComponent],
+  imports: [InventoryStatsBarComponent, InventoryTableComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

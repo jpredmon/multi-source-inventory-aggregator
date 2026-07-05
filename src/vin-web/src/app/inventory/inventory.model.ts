@@ -17,3 +17,16 @@ export interface VehicleSummary {
 
   status: VehicleStatus;
 }
+
+export interface StatusCount {
+  status: VehicleStatus;
+  count: number;
+}
+
+export interface InventoryStats {
+  countsByStatus: StatusCount[];
+  totalCost: number;
+  averageCost: number;
+  averageProfitMarginForSold: number | null;
+  averageDaysOnLotForSold: number | null;
+}

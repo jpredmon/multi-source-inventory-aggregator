@@ -1,0 +1,20 @@
+<!-- Guard on stats() being non-null: nothing renders until the one GET
+     resolves, matching the table's own "empty until loaded" behavior. -->
+<div class="stats-bar" *ngIf="stats() as s">
+  <div>
+    {{ countFor('OnLot') }} on lot
+    &bull;
+    {{ countFor('Auctioned') }} auctioned
+    &bull;
+    {{ countFor('Sold') }} sold
+    &bull;
+    {{ s.totalCost | currency }} total cost
+  </div>
+  <div>
+    avg cost {{ s.averageCost | currency }}
+    &bull;
+    avg margin (sold) {{ s.averageProfitMarginForSold != null ? (s.averageProfitMarginForSold | currency) : '—' }}
+    &bull;
+    avg {{ s.averageDaysOnLotForSold != null ? (s.averageDaysOnLotForSold | number: '1.0-1') : '—' }} days on lot
+  </div>
+</div>

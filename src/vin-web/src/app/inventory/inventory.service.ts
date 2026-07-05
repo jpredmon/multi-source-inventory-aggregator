@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 
-import type { VehicleSummary } from './inventory.model';
+import type { InventoryStats, VehicleSummary } from './inventory.model';
 
 const API_BASE_URL = 'http://localhost:5080/api/inventory';
 
@@ -12,5 +12,9 @@ export class InventoryService {
 
   getAll(): Observable<VehicleSummary[]> {
     return this.http.get<VehicleSummary[]>(API_BASE_URL);
+  }
+
+  getStats(): Observable<InventoryStats> {
+    return this.http.get<InventoryStats>(`${API_BASE_URL}/stats`);
   }
 }

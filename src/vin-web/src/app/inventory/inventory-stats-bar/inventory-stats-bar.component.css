@@ -1,0 +1,9 @@
+/* Same typography as the table (inventory-table.component.css) — the
+   signboard line reads as part of the same plain, quiet visual language,
+   not a new "dashboard" element. No border, no background, no box: just
+   text sitting above the table it summarizes. */
+.stats-bar {
+  font-family: sans-serif;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
