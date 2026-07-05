@@ -20,7 +20,7 @@ code rather than described in the abstract.
 does not need to be finished — a working core is enough to talk about.
 
 **Stack decision:** built on current .NET 9 + EF Core + a current Angular
-version, not the legacy .NET Framework 4.8 + EF6 stack Vin (the company)
+version, not the legacy .NET Framework 4.8 + EF6 stack the target employer
 may actually run. This was a deliberate tradeoff: the 2.5-day budget favors
 spending time on the aggregation/API logic (which transfers conceptually to
 .NET Framework in conversation) over legacy tooling friction (IIS Express,
