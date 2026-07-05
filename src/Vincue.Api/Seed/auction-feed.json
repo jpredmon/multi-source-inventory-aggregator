@@ -5,6 +5,7 @@
   { "vin": "5YJ3E1EA8KF123459", "hammerPrice": 30100.00, "auctionDate": "2025-01-28T15:45:00Z", "condition": "Excellent" },
   { "vin": "1FTFW1ET5DFC12345", "hammerPrice": 19700.00, "auctionDate": "2025-02-02T12:00:00Z", "condition": "Good" },
   { "vin": "2T1BURHE0JC123456", "hammerPrice": 11950.00, "auctionDate": "2025-02-07T17:30:00Z", "condition": "Good" },
+  { "vin": "JN8AZ2NF0K9123457", "hammerPrice": 15900.00, "auctionDate": "2025-01-26T10:00:00Z", "condition": "Fair" },
   { "vin": "JN8AZ2NF0K9123457", "hammerPrice": 17200.00, "auctionDate": "2025-02-11T14:00:00Z", "condition": "Fair" },
   { "vin": "1C4RJFAG3FC123458", "hammerPrice": 22900.00, "auctionDate": "2025-02-17T16:20:00Z", "condition": "Excellent" }
 ]

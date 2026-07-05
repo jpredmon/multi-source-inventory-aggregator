@@ -44,21 +44,53 @@ public class InventoryAggregationService : IInventoryAggregationService
         return
          // Start from DealerInventory — the anchor table. Every row here
             // produces exactly one output row, guaranteed, because it's the
-            // left side of both joins below.
+            // left side of the sale join below and the auction subquery
+            // below always returns at most one row.
             from dealer in _context.DealerInventory
-             // "join ... into auctionGroup" is LINQ's syntax for a SQL LEFT
-            // JOIN when followed by DefaultIfEmpty(). Read it as: for each
-            // dealer row, find every AuctionRecord with a matching Vin and
-            // group them (auctionGroup) — a dealer row with no match gets
-            // an empty group, not a dropped row.
-            join auction in _context.AuctionRecords on dealer.Vin equals auction.Vin into auctionGroup
-             // DefaultIfEmpty() flattens that group back to zero-or-one items,
-            // substituting `null` when the group was empty. This is the part
-            // that actually converts "grouped join" into "left join": without
-            // this line, a dealer row with no auction match would vanish
-            // entirely (that's what a plain inner join does).
-            from auction in auctionGroup.DefaultIfEmpty()
-            // Same left-join pattern again, independently, against SaleRecord.
+            // AuctionRecord has no uniqueness constraint on Vin — nothing
+            // stops a vehicle from being auctioned, failing to sell, and
+            // getting re-listed later, which produces 2+ AuctionRecord rows
+            // for one Vin. The old `join ... into auctionGroup` pattern
+            // assumed at most one match per side; with 2+ matches it would
+            // silently emit one output row per match (a duplicate vehicle
+            // in the response), not an error. This correlated subquery
+            // fixes that: for each dealer row, pull every AuctionRecord for
+            // this Vin, order by AuctionDate descending (most recent
+            // auction wins as the business rule), break ties by Id
+            // descending (most recently inserted), and take only the first.
+            // A `let x = query.FirstOrDefault()` here looked equivalent but
+            // wasn't: EF Core inlined a separate correlated scalar subquery
+            // for every property later read off `auction` (HammerPrice,
+            // AuctionDate, Condition, plus a fourth EXISTS for Status) —
+            // four correlated subqueries per row instead of one, confirmed
+            // by reading the generated SQL.
+            //
+            // This pattern — a second `from` (SelectMany) over a correlated,
+            // ordered, `Take(1)` + `DefaultIfEmpty()` subquery — was expected
+            // to compile to a SQL Server OUTER APPLY. It doesn't: EF Core 9
+            // recognizes this exact "top-1-per-partition" shape and rewrites
+            // it as a single windowed derived table —
+            // `ROW_NUMBER() OVER (PARTITION BY Vin ORDER BY AuctionDate DESC,
+            // Id DESC) ... WHERE row <= 1` — joined once via a plain LEFT
+            // JOIN, confirmed by reading the generated SQL. That's actually
+            // better than an APPLY here: one windowed scan over the whole
+            // table plus one join, instead of a correlated subquery
+            // re-executed per outer row. It's also the identical SQL shape
+            // hand-written as a T-SQL view elsewhere in this project for
+            // the same "most recent auction per VIN" problem — EF Core
+            // independently arrived at the same construct a human would
+            // write by hand.
+            from auction in _context.AuctionRecords
+                .Where(a => a.Vin == dealer.Vin)
+                .OrderByDescending(a => a.AuctionDate)
+                .ThenByDescending(a => a.Id)
+                .Take(1)
+                .DefaultIfEmpty()
+            // SaleRecord has this identical latent-multiplicity risk —
+            // nothing stops 2+ sale rows per Vin either — but it's
+            // deliberately left as a plain LEFT JOIN this round, unfixed.
+            // That's a conscious scope decision (this pass targets the
+            // auction side only), not an oversight.
             // Because this is a second GroupJoin off of `dealer` (not chained
             // off `auction`), a vehicle can have a null auction AND a null
             // sale, or an auction but no sale, etc. — all four combinations
