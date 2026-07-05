@@ -1,3 +1,4 @@
+import { InventoryStatsBar } from './inventory/InventoryStatsBar';
 import { InventoryTable } from './inventory/InventoryTable';
 
 // This is React's equivalent of Angular's App component + app.html: the root
@@ -11,6 +12,7 @@ import { InventoryTable } from './inventory/InventoryTable';
 function App() {
   return (
     <>
+      <InventoryStatsBar />
       <h1>Vin Inventory</h1>
       <InventoryTable />
     </>

@@ -1,4 +1,4 @@
-import type { VehicleSummary } from './inventory.model';
+import type { InventoryStats, VehicleSummary } from './inventory.model';
 
 const API_BASE_URL = 'http://localhost:5080/api/inventory';
 
@@ -21,5 +21,13 @@ export async function getInventory(): Promise<VehicleSummary[]> {
   // .json() parses the response body — this is where the plain JS objects
   // get produced; the <VehicleSummary[]> in this function's return type is
   // still just a compile-time label on top of them, not real conversion.
+  return response.json();
+}
+
+export async function getInventoryStats(): Promise<InventoryStats> {
+  const response = await fetch(`${API_BASE_URL}/stats`);
+  if (!response.ok) {
+    throw new Error(`Failed to load inventory stats: ${response.status}`);
+  }
   return response.json();
 }
