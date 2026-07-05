@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vin.Api.Data;
 
@@ -11,9 +12,11 @@ using Vin.Api.Data;
 namespace Vin.Api.Migrations
 {
     [DbContext(typeof(VinDbContext))]
-    partial class VinDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260705150947_AddVinIndexes")]
+    partial class AddVinIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

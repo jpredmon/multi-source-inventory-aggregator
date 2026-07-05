@@ -42,6 +42,30 @@ public class VinDbContext : DbContext
     // than `_context.AuctionRecord` when you're querying a collection).
     public DbSet<AuctionRecord> AuctionRecords => Set<AuctionRecord>();
     public DbSet<SaleRecord> SaleRecords => Set<SaleRecord>();
+
+    // Vin is the natural key every merge query filters/joins/partitions on,
+    // but it has no uniqueness constraint (see AuctionRecord.cs) — this is a
+    // plain non-unique index purely to speed up lookups, not an integrity
+    // constraint.
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<DealerInventory>()
+            .HasIndex(d => d.Vin)
+            .HasDatabaseName("IX_DealerInventory_Vin");
+
+        modelBuilder.Entity<SaleRecord>()
+            .HasIndex(s => s.Vin)
+            .HasDatabaseName("IX_SaleRecords_Vin");
+
+        // Composite, ordered to match exactly how BuildQuery()'s correlated
+        // subquery (and the MostRecentAuctionPerVin view) use this table:
+        // filter by Vin, then order by AuctionDate. One index covers both
+        // the equality filter and the sort in a single seek, rather than
+        // needing a separate sort step after the seek.
+        modelBuilder.Entity<AuctionRecord>()
+            .HasIndex(a => new { a.Vin, a.AuctionDate })
+            .HasDatabaseName("IX_AuctionRecords_Vin_AuctionDate");
+    }
 }
 /* The class itself is almost entirely boilerplate — the interesting part is how it's wired up, in Program.cs:
 
