@@ -80,6 +80,39 @@ actually exercise the window-function dedupe and indexing described above.
 Each test runs inside its own transaction, rolled back on teardown, so
 nothing persists between runs.
 
+## Cross-referential design
+
+A few places where the same key, logic, or contract is independently re-expressed
+across layers, rather than defined once and shared:
+
+- **VIN is the only cross-table key.** `DealerInventory`, `AuctionRecords`, and
+  `SaleRecords` have no foreign-key relationships to each other — the merge in
+  `InventoryAggregationService.BuildQuery()` joins them purely on `Vin`.
+- **One query, three public methods.** `BuildQuery()` is a private, unexecuted
+  `IQueryable`; `GetAllAsync()`, `GetByVinAsync()`, and `GetStatsAsync()` each
+  cap or filter it differently instead of re-deriving the join logic.
+- **LINQ and hand-written T-SQL independently converge on the same shape.**
+  EF Core compiles the auction dedupe into
+  `ROW_NUMBER() OVER (PARTITION BY Vin ORDER BY AuctionDate DESC, Id DESC)` —
+  the exact shape hand-written in the `dbo.MostRecentAuctionPerVin` view. The
+  two tiebreak orderings are documented as needing to stay in sync.
+- **The `Vin` index on `AuctionRecords` documents its own limitation** by
+  referencing the same window-function boundary the query and the view both
+  rely on — SQL Server can't push the equality predicate through
+  `ROW_NUMBER()`, so the index is never actually used for that table.
+- **One DTO contract, three independent implementations.**
+  `VehicleSummaryDto`/`InventoryStatsDto` (C#) are mirrored by hand in both
+  the Angular and React `inventory.model.ts` files — same shape, no shared
+  source, just an agreed HTTP contract.
+- **The same edge case, solved twice.** Both frontends implement an identical
+  default-to-zero helper for status counts, because SQL `GROUP BY` never
+  emits empty groups — independently re-derived on each side.
+- **Tests use the seed data as their oracle.** The integration tests
+  hand-compute expected aggregates straight from `Seed/*.json` and assert
+  against `GetStatsAsync()` — the regression test for a re-auctioned VIN
+  exists because that VIN was added to the seed data specifically to expose
+  the dedupe bug.
+
 ## Resetting the database
 
 ```bash
